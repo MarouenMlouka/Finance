@@ -17,6 +17,11 @@ def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
 
     return user_input
 
+def afficher_resultat_cadre(titre, resultat, explication):
+    st.subheader(titre)
+    st.write(resultat)
+    st.write(explication)
+
 def main():
     st.title("Calculateur d'analyse financière")
 
