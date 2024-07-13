@@ -2,16 +2,15 @@ import streamlit as st
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
     user_input = st.text_input(message, default_value)
-    if st.session_state.form_submitted:
-        if user_input:  # Vérifie si l'entrée utilisateur n'est pas vide
-            try:
-                return type_conversion(user_input)
-            except ValueError:
-                st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
-                st.stop()
-        else:
-            st.error(f"Erreur : Veuillez entrer une valeur pour {message}")
+    if user_input != "":
+        try:
+            return type_conversion(user_input)
+        except ValueError:
+            st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
             st.stop()
+    else:
+        st.error(f"Erreur : Veuillez entrer une valeur pour {message}")
+        st.stop()
 
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
@@ -35,8 +34,8 @@ def main():
     # Saisie des ventes totales par mois avant l'implémentation (T0)
     ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float)
 
-    # Si l'entrée utilisateur n'a pas été soumise, ne pas afficher l'erreur
-    if not st.session_state.form_submitted:
+    # Si l'entrée utilisateur n'a pas été saisie, arrêter le script
+    if ventes_initiales_par_mois is None:
         return
 
     # Saisie de la période de mesure
