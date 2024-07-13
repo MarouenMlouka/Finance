@@ -29,16 +29,11 @@ def main():
     choix_produit = st.selectbox("Choisissez un produit", list(produits.values()))
     nom_produit = [key for key, value in produits.items() if value == choix_produit][0]
 
-    # Initialisation de l'état de session
-    if 'etape' not in st.session_state:
-        st.session_state.etape = 0
-
     # Étape 1: Ventes initiales par mois avant l'implémentation
     if st.session_state.etape == 0:
-        if st.button("Commencer"):
-            st.session_state.ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float)
-            if st.session_state.ventes_initiales_par_mois is not None:
-                st.session_state.etape = 1
+        st.session_state.ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float)
+        if st.session_state.ventes_initiales_par_mois is not None:
+            st.session_state.etape = 1
 
     # Étape 2: Période de mesure et ventes mensuelles
     elif st.session_state.etape == 1:
@@ -87,10 +82,6 @@ def main():
                     f"{marge_brute:.2f}%",
                     "Marge Brute = ((Revenus supplémentaires - Coût des marchandises vendues) / Revenus supplémentaires) * 100"
                 )
-
-        # Réinitialisation de l'état pour une nouvelle session
-        if st.button("Nouvelle Session"):
-            st.session_state.clear()
 
 if __name__ == "__main__":
     main()
