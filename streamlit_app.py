@@ -1,12 +1,12 @@
 import streamlit as st
 
-def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
-    user_input = st.text_input(message, default_value)
-    if user_input != "":
+def obtenir_entree_utilisateur(message, type_conversion):
+    user_input = st.text_input(message)
+    if user_input:
         try:
             return type_conversion(user_input)
         except ValueError:
-            st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
+            st.error(f"Erreur : Veuillez entrer une valeur valide pour {message}")
             st.stop()
     else:
         st.error(f"Erreur : Veuillez entrer une valeur pour {message}")
