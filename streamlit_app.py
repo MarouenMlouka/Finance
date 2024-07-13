@@ -1,16 +1,16 @@
 import streamlit as st
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
-    while True:
-        user_input = st.text_input(message, default_value)
-        if user_input.strip() != "":
-            try:
-                return type_conversion(user_input)
-            except ValueError:
-                st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
-        else:
-            st.error(f"Erreur : Veuillez entrer une valeur pour {message}")
-            return None  # Retourner None si l'entrée est vide
+    user_input = st.text_input(message, default_value)
+    if user_input:  # Vérifie si l'entrée utilisateur n'est pas vide
+        try:
+            return type_conversion(user_input)
+        except ValueError:
+            st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
+            st.stop()
+    else:
+        st.error(f"Erreur : Veuillez entrer une valeur pour {message}")
+        st.stop()
 
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
@@ -34,9 +34,6 @@ def main():
     # Saisie des ventes totales par mois avant l'implémentation (T0)
     ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float)
 
-    if ventes_initiales_par_mois is None:
-        return  # Arrêter la fonction main si aucune valeur n'est saisie
-
     # Saisie de la période de mesure
     periode_mesure = st.number_input("Entrez la période de mesure (en mois) :", min_value=1, step=1)
 
@@ -57,14 +54,8 @@ def main():
     # Demander le prix hors taxe par boîte
     prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ", float)
 
-    if prix_ht_par_boite is None:
-        return  # Arrêter la fonction main si aucune valeur n'est saisie
-
     # Demander le coût de production par boîte
     cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ", float)
-
-    if cout_production_par_boite is None:
-        return  # Arrêter la fonction main si aucune valeur n'est saisie
 
     # Calcul du coût des marchandises vendues (COGS)
     cout_total_supplementaire = cout_production_par_boite * boites_supplementaires
@@ -77,9 +68,6 @@ def main():
     # Demander le coût de l'investissement
     cout_investissement = obtenir_entree_utilisateur("Entrez le coût de l'investissement pour la période concernée (en DT) : ", float)
 
-    if cout_investissement is None:
-        return  # Arrêter la fonction main si aucune valeur n'est saisie
-
     # Calcul des revenus supplémentaires
     revenus_supplementaires = prix_ht_par_boite * boites_supplementaires
     afficher_resultat_cadre(
@@ -89,10 +77,7 @@ def main():
     )
 
     # Calcul de la marge brute
-    if revenus_supplementaires != 0:
-        marge_brute = ((revenus_supplementaires - cout_total_supplementaire) / revenus_supplementaires) * 100
-    else:
-        marge_brute = 0
+    marge_brute = ((revenus_supplementaires - cout_total_supplementaire) / revenus_supplementaires) * 100
     afficher_resultat_cadre(
         "Marge Brute =",
         f"{marge_brute:.2f}%",
@@ -116,10 +101,7 @@ def main():
     )
 
     # Calcul du retour sur investissement (ROI)
-    if cout_investissement != 0:
-        roi_complet = ((revenus_total - cout_total) / cout_investissement) * 100
-    else:
-        roi_complet = 0
+    roi_complet = ((revenus_total - cout_total) / cout_investissement) * 100
     afficher_resultat_cadre(
         "Retour sur investissement (ROI) =",
         f"{roi_complet:.2f}%",
@@ -127,10 +109,7 @@ def main():
     )
 
     # Calcul du seuil de rentabilité (BEP)
-    if (prix_ht_par_boite - cout_production_par_boite) != 0:
-        bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
-    else:
-        bep = 0
+    bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
     afficher_resultat_cadre(
         "Seuil de rentabilité (BEP) =",
         f"{bep:.2f} boîtes",
