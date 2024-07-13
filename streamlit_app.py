@@ -43,6 +43,11 @@ def main():
         ventes_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) :", int)
         ventes_mensuelles.append(ventes_mois)
 
+    # Vérifier que ventes_initiales_par_mois est un nombre avant de calculer boites_supplementaires
+    if ventes_initiales_par_mois is None:
+        st.warning("Veuillez saisir les ventes totales par mois avant l'implémentation du projet.")
+        st.stop()
+
     # Calcul des boîtes supplémentaires (uplift)
     boites_supplementaires = sum(ventes_mensuelles) - (ventes_initiales_par_mois * periode_mesure)
     afficher_resultat_cadre(
