@@ -1,62 +1,42 @@
 import streamlit as st
-from termcolor import colored
-
-# Fonction pour obtenir les entrées de l'utilisateur avec vérification
-def obtenir_entree_utilisateur(message, type_donnee=float):
-    while True:
-        try:
-            return type_donnee(st.text_input(message))
-        except ValueError:
-            st.error(colored("Entrée invalide. Veuillez entrer un nombre.", 'red'))
 
 def main():
     st.title("Calculateur d'analyse financière")
 
-    # Définir les produits disponibles
+    # Définition des produits
     produits = {
-        "diamicron": {
-            "nom": "Diamicron",
-            "indice": 0
-        },
-        "natrixam": {
-            "nom": "Natrixam",
-            "indice": 1
-        },
-        "fludex LP": {
-            "nom": "Fludex LP",
-            "indice": 2
-        }
+        "diamicron": "Diamicron",
+        "natrixam": "Natrixam",
+        "fludex LP": "Fludex LP"
     }
 
-    # Initialisation de l'état de session pour les ventes initiales
-    if 'ventes_initiales' not in st.session_state:
-        st.session_state['ventes_initiales'] = {}
+    # Choix du produit
+    choix_produit = st.selectbox("Choisissez un produit", list(produits.values()))
+    produit_nom = [key for key, value in produits.items() if value == choix_produit][0]
 
-    # Demander le nom du produit
-    choix_produit_nom = st.selectbox("Choisissez un produit", list(produits.keys()))
-    nom_produit = produits[choix_produit_nom]["nom"]
+    # Saisie des ventes totales par mois avant l'implémentation (T0)
+    ventes_initiales = st.text_input(f"Entrez les ventes totales par mois de {choix_produit} avant l'implémentation du projet (T0) :")
+    try:
+        ventes_initiales = float(ventes_initiales)
+    except ValueError:
+        st.error("Veuillez entrer un nombre valide.")
 
-    # Demander les ventes totales par mois avant l'implémentation du projet (T0)
-    if nom_produit not in st.session_state['ventes_initiales']:
-        ventes_initiales = obtenir_entree_utilisateur(
-            f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ",
-            int
-        )
-        st.session_state['ventes_initiales'][nom_produit] = ventes_initiales
+    # Saisie de la période de mesure
+    periode_mesure = st.number_input("Entrez la période de mesure (en mois) :", min_value=1, step=1)
 
-    # Demander la période de mesure
-    periode_mesure = obtenir_entree_utilisateur("Entrez la période de mesure (en mois) : ", int)
-
-    # Demander les ventes mensuelles pour chaque mois de la période de mesure
+    # Saisie des ventes mensuelles pour chaque mois de la période de mesure
     ventes_mensuelles = []
     for mois in range(1, periode_mesure + 1):
-        ventes_mensuelles.append(obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) : ", int))
+        ventes_mois = st.number_input(f"Entrez les ventes totales pour le mois {mois} (en boîtes) :", min_value=0, step=1)
+        ventes_mensuelles.append(ventes_mois)
 
-    # Calculer les boîtes supplémentaires (uplift)
-    boites_supplementaires = sum(ventes_mensuelles) - (st.session_state['ventes_initiales'][nom_produit] * periode_mesure)
-    st.subheader("Boîtes supplémentaires vendues =")
-    st.write(boites_supplementaires)
-    st.text("Formule : Boîtes supplémentaires vendues = Total des ventes après investissement - (Ventes initiales par mois * Période de mesure)")
+    # Calcul des boîtes supplémentaires vendues
+    if st.button("Calculer les boîtes supplémentaires vendues"):
+        total_ventes_apres_investissement = sum(ventes_mensuelles)
+        boites_supplementaires = total_ventes_apres_investissement - (ventes_initiales * periode_mesure)
+        st.subheader("Boîtes supplémentaires vendues =")
+        st.write(boites_supplementaires)
+        st.text("Formule : Boîtes supplémentaires vendues = Total des ventes après investissement - (Ventes initiales par mois * Période de mesure)")
 
 if __name__ == "__main__":
     main()
