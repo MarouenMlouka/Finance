@@ -3,7 +3,7 @@ import streamlit as st
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
     while True:
         user_input = st.text_input(message, default_value)
-        if user_input.strip():  # Vérifie si l'entrée utilisateur n'est pas vide
+        if user_input.strip() != "":
             try:
                 return type_conversion(user_input)
             except ValueError:
