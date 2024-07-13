@@ -1,7 +1,12 @@
 import streamlit as st
 
-def obtenir_entree_utilisateur(message, type_conversion):
-    return type_conversion(st.text_input(message))
+def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
+    user_input = st.text_input(message, default_value)
+    try:
+        return type_conversion(user_input)
+    except ValueError:
+        st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
+        st.stop()
 
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
