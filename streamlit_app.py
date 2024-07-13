@@ -131,6 +131,15 @@ def main():
                         f"{bep:.2f} boîtes",
                         "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
                     )
+
+                    # Calcul de la période exacte qui coïncide avec le BEP
+                    periode_bep = bep / (sum(ventes_mensuelles) - ventes_initiales_par_mois)
+                    afficher_resultat_cadre(
+                        "Période exacte pour atteindre le seuil de rentabilité (BEP) =",
+                        f"{periode_bep:.2f} mois",
+                        "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
+                    )
+
                 else:
                     st.warning("Le calcul du seuil de rentabilité n'est pas possible car le prix hors taxe par boîte est égal au coût de production par boîte.")
 
