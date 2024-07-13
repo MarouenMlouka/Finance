@@ -38,10 +38,11 @@ def main():
 
     # Demander les ventes totales par mois avant l'implémentation du projet (T0)
     if nom_produit not in st.session_state['ventes_initiales']:
-        st.session_state['ventes_initiales'][nom_produit] = obtenir_entree_utilisateur(
+        ventes_initiales = obtenir_entree_utilisateur(
             f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ",
             int
         )
+        st.session_state['ventes_initiales'][nom_produit] = ventes_initiales
 
     # Demander la période de mesure
     periode_mesure = obtenir_entree_utilisateur("Entrez la période de mesure (en mois) : ", int)
@@ -59,4 +60,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
