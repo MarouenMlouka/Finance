@@ -37,7 +37,7 @@ def main():
     nom_produit = produits[choix_produit_nom]["nom"]
 
     # Demander les ventes totales par mois avant l'implémentation du projet (T0)
-    if 'ventes_initiales' not in st.session_state or nom_produit not in st.session_state['ventes_initiales']:
+    if nom_produit not in st.session_state['ventes_initiales']:
         st.session_state['ventes_initiales'][nom_produit] = obtenir_entree_utilisateur(
             f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ",
             int
@@ -59,3 +59,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
