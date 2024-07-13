@@ -28,15 +28,20 @@ def main():
         }
     }
 
+    # Initialisation de l'état de session pour les ventes initiales
+    if 'ventes_initiales' not in st.session_state:
+        st.session_state['ventes_initiales'] = {}
+
     # Demander le nom du produit
     choix_produit_nom = st.selectbox("Choisissez un produit", list(produits.keys()))
     nom_produit = produits[choix_produit_nom]["nom"]
 
     # Demander les ventes totales par mois avant l'implémentation du projet (T0)
-    ventes_initiales_par_mois = obtenir_entree_utilisateur(
-        f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ",
-        int
-    )
+    if 'ventes_initiales' not in st.session_state or nom_produit not in st.session_state['ventes_initiales']:
+        st.session_state['ventes_initiales'][nom_produit] = obtenir_entree_utilisateur(
+            f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ",
+            int
+        )
 
     # Demander la période de mesure
     periode_mesure = obtenir_entree_utilisateur("Entrez la période de mesure (en mois) : ", int)
@@ -47,7 +52,7 @@ def main():
         ventes_mensuelles.append(obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) : ", int))
 
     # Calculer les boîtes supplémentaires (uplift)
-    boites_supplementaires = sum(ventes_mensuelles) - (ventes_initiales_par_mois * periode_mesure)
+    boites_supplementaires = sum(ventes_mensuelles) - (st.session_state['ventes_initiales'][nom_produit] * periode_mesure)
     st.subheader("Boîtes supplémentaires vendues =")
     st.write(boites_supplementaires)
     st.text("Formule : Boîtes supplémentaires vendues = Total des ventes après investissement - (Ventes initiales par mois * Période de mesure)")
