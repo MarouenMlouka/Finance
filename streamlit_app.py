@@ -18,10 +18,25 @@ def afficher_resultat_cadre(titre, valeur, formule):
 def main():
     st.title("Calculateur d'analyse financière")
 
+    # Définir les produits disponibles
+    produits = {
+        "diamicron": {
+            "nom": "Diamicron",
+            "indice": 0
+        },
+        "natrixam": {
+            "nom": "Natrixam",
+            "indice": 1
+        },
+        "fludex LP": {
+            "nom": "Fludex LP",
+            "indice": 2
+        }
+    }
+
     # Demander le nom du produit
-    produits = ["diamicron", "natrixam", "fludex LP"]
-    choix_produit = st.selectbox("Choisissez un produit", produits)
-    nom_produit = produits[choix_produit]
+    choix_produit_nom = st.selectbox("Choisissez un produit", list(produits.keys()))
+    nom_produit = produits[choix_produit_nom]["nom"]
 
     # Demander les ventes totales par mois avant l'implémentation du projet
     ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ", int)
