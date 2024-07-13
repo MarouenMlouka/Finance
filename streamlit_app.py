@@ -2,15 +2,14 @@ import streamlit as st
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
     user_input = st.text_input(message, default_value)
-    if user_input:  # Vérifie si l'entrée utilisateur n'est pas vide
+    if user_input.strip():  # Vérifie si l'entrée utilisateur n'est pas vide
         try:
             return type_conversion(user_input)
         except ValueError:
             st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
-            st.stop()
+            return None  # Retourner None en cas d'erreur de conversion
     else:
-        st.error(f"Erreur : Veuillez entrer une valeur pour {message}")
-        st.stop()
+        return None  # Retourner None si l'entrée est vide
 
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
@@ -33,6 +32,8 @@ def main():
 
     # Saisie des ventes totales par mois avant l'implémentation (T0)
     ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float)
+    if ventes_initiales_par_mois is None:
+        st.warning(f"Vous n'avez pas saisi de valeur pour les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0).")
 
     # Saisie de la période de mesure
     periode_mesure = st.number_input("Entrez la période de mesure (en mois) :", min_value=1, step=1, key='periode_mesure')
@@ -41,10 +42,12 @@ def main():
     ventes_mensuelles = []
     for mois in range(1, periode_mesure + 1):
         ventes_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) :", int)
+        if ventes_mois is None:
+            st.warning(f"Vous n'avez pas saisi de valeur pour les ventes totales du mois {mois}.")
         ventes_mensuelles.append(ventes_mois)
 
     # Calcul des boîtes supplémentaires (uplift)
-    if ventes_mensuelles:
+    if all(v is not None for v in ventes_mensuelles) and ventes_initiales_par_mois is not None:
         boites_supplementaires = sum(ventes_mensuelles) - (ventes_initiales_par_mois * periode_mesure)
         afficher_resultat_cadre(
             "Boîtes supplémentaires vendues =",
@@ -54,9 +57,13 @@ def main():
 
         # Demander le prix hors taxe par boîte
         prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ", float)
+        if prix_ht_par_boite is None:
+            st.warning(f"Vous n'avez pas saisi de valeur pour le prix hors taxe par boîte de {nom_produit}.")
 
         # Demander le coût de production par boîte
         cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ", float)
+        if cout_production_par_boite is None:
+            st.warning(f"Vous n'avez pas saisi de valeur pour le coût de production par boîte de {nom_produit}.")
 
         # Calcul du coût des marchandises vendues (COGS)
         cout_total_supplementaire = cout_production_par_boite * boites_supplementaires
@@ -68,6 +75,8 @@ def main():
 
         # Demander le coût de l'investissement
         cout_investissement = obtenir_entree_utilisateur("Entrez le coût de l'investissement pour la période concernée (en DT) : ", float)
+        if cout_investissement is None:
+            st.warning("Vous n'avez pas saisi de valeur pour le coût de l'investissement.")
 
         # Calcul des revenus supplémentaires
         revenus_supplementaires = prix_ht_par_boite * boites_supplementaires
@@ -110,32 +119,21 @@ def main():
         )
 
         # Calcul du seuil de rentabilité (BEP)
-        bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
-        afficher_resultat_cadre(
-            "Seuil de rentabilité (BEP) =",
-            f"{bep:.2f} boîtes",
-            "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
-        )
-
-        # Calcul de la période exacte qui coïncide avec le BEP
-        ventes_cumulees = 0
-        mois_bep = 0
-        for mois, ventes in enumerate(ventes_mensuelles, start=1):
-            ventes_cumulees += ventes
-            revenu_cumule = ventes_cumulees * prix_ht_par_boite
-            if revenu_cumule >= cout_investissement:
-                mois_bep = mois
-                break
-
-        # Afficher les résultats de la période BEP
-        if mois_bep > 0:
+        if prix_ht_par_boite is not None and cout_production_par_boite is not None:
+            bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
             afficher_resultat_cadre(
-                "Le seuil de rentabilité est atteint au mois :",
-                mois_bep,
-                "Le seuil de rentabilité est atteint quand les ventes cumulées couvrent le coût de l'investissement"
+                "Seuil de rentabilité (BEP) =",
+                f"{bep:.2f} boîtes",
+                "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
             )
-        else:
-            st.warning("Le seuil de rentabilité n'est pas atteint dans la période donnée.")
+
+            # Calcul de la période exacte qui coïncide avec le BEP
+            periode_exacte = bep / (sum(ventes_mensuelles) - ventes_initiales_par_mois)
+            afficher_resultat_cadre(
+                "Période exacte qui coïncide avec le BEP =",
+                f"{periode_exacte:.2f} mois",
+                "Période exacte qui coïncide avec le BEP = BEP / (Ventes totales - Ventes totales avant l'implémentation du projet)"
+            )
 
 if __name__ == "__main__":
     main()
