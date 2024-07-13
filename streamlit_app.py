@@ -39,7 +39,7 @@ def main():
     nom_produit = produits[choix_produit_nom]["nom"]
 
     # Demander les ventes totales par mois avant l'implémentation du projet
-    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ", int, widget_id="ventes_initiales")
+    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ", int, widget_id=f"ventes_initiales_{nom_produit}")
 
     # Demander la période de mesure
     periode_mesure = obtenir_entree_utilisateur("Entrez la période de mesure (en mois) : ", int, widget_id="periode_mesure")
@@ -58,10 +58,10 @@ def main():
     )
 
     # Demander le prix hors taxe par boîte
-    prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ", widget_id="prix_ht")
+    prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ", widget_id=f"prix_ht_{nom_produit}")
 
     # Demander le coût de production par boîte
-    cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ", widget_id="cout_production")
+    cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ", widget_id=f"cout_production_{nom_produit}")
 
     # Calcul du coût des marchandises vendues (COGS)
     cout_total_supplementaire = cout_production_par_boite * boites_supplementaires
