@@ -15,11 +15,7 @@ def main():
     produit_nom = [key for key, value in produits.items() if value == choix_produit][0]
 
     # Saisie des ventes totales par mois avant l'implémentation (T0)
-    ventes_initiales = st.text_input(f"Entrez les ventes totales par mois de {choix_produit} avant l'implémentation du projet (T0) :")
-    try:
-        ventes_initiales = float(ventes_initiales)
-    except ValueError:
-        st.error("Veuillez entrer un nombre valide.")
+    ventes_initiales = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {choix_produit} avant l'implémentation du projet (T0) : ", float)
 
     # Saisie de la période de mesure
     periode_mesure = st.number_input("Entrez la période de mesure (en mois) :", min_value=1, step=1)
@@ -37,6 +33,13 @@ def main():
         st.subheader("Boîtes supplémentaires vendues =")
         st.write(boites_supplementaires)
         st.text("Formule : Boîtes supplémentaires vendues = Total des ventes après investissement - (Ventes initiales par mois * Période de mesure)")
+
+def obtenir_entree_utilisateur(message, type_donnee):
+    while True:
+        try:
+            return type_donnee(st.text_input(message))
+        except ValueError:
+            st.error("Veuillez entrer un nombre valide.")
 
 if __name__ == "__main__":
     main()
