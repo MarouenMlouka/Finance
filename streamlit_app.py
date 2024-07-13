@@ -21,7 +21,13 @@ def afficher_resultat_cadre(titre, resultat, explication):
     st.text(explication)
 
 def main():
+    # URL du logo Servier
+    url_logo_servier = "https://upload.wikimedia.org/wikipedia/fr/thumb/b/b0/Logo_Servier_2024.svg/2560px-Logo_Servier_2024.svg.png"
+
     st.title("Calculateur d'analyse financière")
+
+    # Affichage du logo Servier en haut à droite
+    st.image(url_logo_servier, width=150)  # Ajustez la largeur selon vos besoins
 
     # Définition des produits
     produits = {
@@ -135,25 +141,6 @@ def main():
                         f"{bep:.2f} boîtes",
                         "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
                     )
-
-                    # Calcul de la période exacte qui coïncide avec le BEP
-                    periode_bep = bep / (sum(ventes_mensuelles) - ventes_initiales_par_mois)
-                    afficher_resultat_cadre(
-                        "Période exacte pour atteindre le seuil de rentabilité (BEP) =",
-                        f"{periode_bep:.2f} mois",
-                        "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
-                    )
-                else:
-                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) car le dénominateur est nul (Prix hors taxe par boîte - Coût de production par boîte = 0).")
-
-            else:
-                st.warning("Veuillez saisir le coût de l'investissement pour continuer.")
-
-        else:
-            st.warning("Veuillez saisir toutes les valeurs requises pour le calcul du coût des marchandises vendues (COGS).")
-
-    else:
-        st.warning("Veuillez saisir toutes les valeurs requises pour le calcul des boîtes supplémentaires vendues.")
 
 if __name__ == "__main__":
     main()
