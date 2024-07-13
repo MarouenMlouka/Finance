@@ -2,10 +2,10 @@ import streamlit as st
 from termcolor import colored
 
 # Fonction pour obtenir les entrées de l'utilisateur avec vérification
-def obtenir_entree_utilisateur(message, type_donnee=float):
+def obtenir_entree_utilisateur(message, type_donnee=float, widget_id=None):
     while True:
         try:
-            return type_donnee(st.text_input(message))
+            return type_donnee(st.text_input(message, key=widget_id))
         except ValueError:
             st.error(colored("Entrée invalide. Veuillez entrer un nombre.", 'red'))
 
@@ -39,15 +39,15 @@ def main():
     nom_produit = produits[choix_produit_nom]["nom"]
 
     # Demander les ventes totales par mois avant l'implémentation du projet
-    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ", int)
+    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ", int, widget_id="ventes_initiales")
 
     # Demander la période de mesure
-    periode_mesure = obtenir_entree_utilisateur("Entrez la période de mesure (en mois) : ", int)
+    periode_mesure = obtenir_entree_utilisateur("Entrez la période de mesure (en mois) : ", int, widget_id="periode_mesure")
 
     # Demander les ventes mensuelles pour chaque mois de la période de mesure
     ventes_mensuelles = []
     for mois in range(1, periode_mesure + 1):
-        ventes_mensuelles.append(obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) : ", int))
+        ventes_mensuelles.append(obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) : ", int, widget_id=f"ventes_mensuelles_{mois}"))
 
     # Calculer les boîtes supplémentaires (uplift)
     boites_supplementaires = sum(ventes_mensuelles) - (ventes_initiales_par_mois * periode_mesure)
@@ -58,10 +58,10 @@ def main():
     )
 
     # Demander le prix hors taxe par boîte
-    prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ")
+    prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ", widget_id="prix_ht")
 
     # Demander le coût de production par boîte
-    cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ")
+    cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ", widget_id="cout_production")
 
     # Calcul du coût des marchandises vendues (COGS)
     cout_total_supplementaire = cout_production_par_boite * boites_supplementaires
@@ -72,7 +72,7 @@ def main():
     )
 
     # Demander le coût de l'investissement
-    cout_investissement = obtenir_entree_utilisateur("Entrez le coût de l'investissement pour la période concernée (en DT) : ")
+    cout_investissement = obtenir_entree_utilisateur("Entrez le coût de l'investissement pour la période concernée (en DT) : ", widget_id="cout_investissement")
 
     # Calcul des revenus supplémentaires
     revenus_supplementaires = prix_ht_par_boite * boites_supplementaires
