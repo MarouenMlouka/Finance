@@ -1,7 +1,11 @@
 import streamlit as st
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
-    user_input = st.text_input(message, default_value)
+    if default_value is not None:
+        user_input = st.text_input(message, value=default_value)
+    else:
+        user_input = st.text_input(message)
+    
     if user_input and user_input.strip():  # Vérifie si l'entrée utilisateur n'est pas vide
         try:
             return type_conversion(user_input)
@@ -31,7 +35,7 @@ def main():
     nom_produit = [key for key, value in produits.items() if value == choix_produit][0]
 
     # Saisie des ventes totales par mois avant l'implémentation (T0)
-    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float, default_value=0.0)
+    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float, default_value=None)
     if ventes_initiales_par_mois is None:
         st.warning(f"Aucune valeur n'a été saisie pour les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0).")
 
@@ -139,9 +143,8 @@ def main():
                         f"{periode_bep:.2f} mois",
                         "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
                     )
-
                 else:
-                    st.warning("Le calcul du seuil de rentabilité n'est pas possible car le prix hors taxe par boîte est égal au coût de production par boîte.")
+                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) car le dénominateur est nul (Prix hors taxe par boîte - Coût de production par boîte = 0).")
 
             else:
                 st.warning("Veuillez saisir le coût de l'investissement pour continuer.")
