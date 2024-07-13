@@ -31,9 +31,9 @@ def main():
     nom_produit = [key for key, value in produits.items() if value == choix_produit][0]
 
     # Saisie des ventes totales par mois avant l'implémentation (T0)
-    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float)
+    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float, default_value=0.0)
     if ventes_initiales_par_mois is None:
-        st.warning(f"Vous n'avez pas saisi de valeur pour les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0).")
+        st.warning(f"Aucune valeur n'a été saisie pour les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0).")
 
     # Saisie de la période de mesure
     periode_mesure = st.number_input("Entrez la période de mesure (en mois) :", min_value=1, step=1, key='periode_mesure')
@@ -43,7 +43,7 @@ def main():
     for mois in range(1, periode_mesure + 1):
         ventes_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales pour le mois {mois} (en boîtes) :", int)
         if ventes_mois is None:
-            st.warning(f"Vous n'avez pas saisi de valeur pour les ventes totales du mois {mois}.")
+            st.warning(f"Aucune valeur n'a été saisie pour les ventes totales du mois {mois}.")
         ventes_mensuelles.append(ventes_mois)
 
     # Calcul des boîtes supplémentaires (uplift)
@@ -58,12 +58,12 @@ def main():
         # Demander le prix hors taxe par boîte
         prix_ht_par_boite = obtenir_entree_utilisateur(f"Entrez le prix hors taxe par boîte de {nom_produit} (en DT) : ", float)
         if prix_ht_par_boite is None:
-            st.warning(f"Vous n'avez pas saisi de valeur pour le prix hors taxe par boîte de {nom_produit}.")
+            st.warning(f"Aucune valeur n'a été saisie pour le prix hors taxe par boîte de {nom_produit}.")
 
         # Demander le coût de production par boîte
         cout_production_par_boite = obtenir_entree_utilisateur(f"Entrez le coût de production par boîte de {nom_produit} (en DT) : ", float)
         if cout_production_par_boite is None:
-            st.warning(f"Vous n'avez pas saisi de valeur pour le coût de production par boîte de {nom_produit}.")
+            st.warning(f"Aucune valeur n'a été saisie pour le coût de production par boîte de {nom_produit}.")
 
         # Calcul du coût des marchandises vendues (COGS)
         cout_total_supplementaire = cout_production_par_boite * boites_supplementaires
@@ -76,7 +76,7 @@ def main():
         # Demander le coût de l'investissement
         cout_investissement = obtenir_entree_utilisateur("Entrez le coût de l'investissement pour la période concernée (en DT) : ", float)
         if cout_investissement is None:
-            st.warning("Vous n'avez pas saisi de valeur pour le coût de l'investissement.")
+            st.warning("Aucune valeur n'a été saisie pour le coût de l'investissement.")
 
         # Calcul des revenus supplémentaires
         revenus_supplementaires = prix_ht_par_boite * boites_supplementaires
