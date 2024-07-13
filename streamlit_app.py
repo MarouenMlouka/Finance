@@ -7,21 +7,21 @@ def obtenir_entree_utilisateur(message, type_donnee=float):
         try:
             return type_donnee(st.text_input(message))
         except ValueError:
-            st.error("Entrée invalide. Veuillez entrer un nombre.")
+            st.error(colored("Entrée invalide. Veuillez entrer un nombre.", 'red'))
 
 # Fonction pour afficher les résultats dans un cadre
 def afficher_resultat_cadre(titre, valeur, formule):
     st.subheader(titre)
     st.write(valeur)
-    st.write(f"Formule : {formule}")
+    st.text(f"Formule : {formule}")
 
 def main():
-    st.title("Calculateur de Retour sur Investissement (ROI)")
+    st.title("Calculateur d'analyse financière")
 
     # Demander le nom du produit
     produits = ["diamicron", "natrixam", "fludex LP"]
     choix_produit = st.selectbox("Choisissez un produit", produits)
-    nom_produit = choix_produit
+    nom_produit = produits[choix_produit]
 
     # Demander les ventes totales par mois avant l'implémentation du projet
     ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) : ", int)
@@ -68,12 +68,15 @@ def main():
     )
 
     # Calcul de la marge brute
-    marge_brute = ((revenus_supplementaires - cout_total_supplementaire) / revenus_supplementaires) * 100
-    afficher_resultat_cadre(
-        "Marge Brute =",
-        f"{marge_brute:.2f}%",
-        "Marge Brute = ((Revenus supplémentaires - Coût des marchandises vendues) / Revenus supplémentaires) * 100"
-    )
+    if revenus_supplementaires != 0:
+        marge_brute = ((revenus_supplementaires - cout_total_supplementaire) / revenus_supplementaires) * 100
+        afficher_resultat_cadre(
+            "Marge Brute =",
+            f"{marge_brute:.2f}%",
+            "Marge Brute = ((Revenus supplémentaires - Coût des marchandises vendues) / Revenus supplémentaires) * 100"
+        )
+    else:
+        st.warning("Impossible de calculer la marge brute car les revenus supplémentaires sont nuls.")
 
     # Calcul des revenus totaux
     revenus_total = sum(ventes_mensuelles) * prix_ht_par_boite
@@ -92,20 +95,26 @@ def main():
     )
 
     # Calcul du retour sur investissement (ROI)
-    roi_complet = ((revenus_total - cout_total) / cout_investissement) * 100
-    afficher_resultat_cadre(
-        "Retour sur investissement (ROI) =",
-        f"{roi_complet:.2f}%",
-        "ROI = ((Revenus total - Coût total) / Coût de l'investissement) * 100"
-    )
+    if cout_investissement != 0:
+        roi_complet = ((revenus_total - cout_total) / cout_investissement) * 100
+        afficher_resultat_cadre(
+            "Retour sur investissement (ROI) =",
+            f"{roi_complet:.2f}%",
+            "ROI = ((Revenus total - Coût total) / Coût de l'investissement) * 100"
+        )
+    else:
+        st.warning("Impossible de calculer le retour sur investissement car le coût de l'investissement est nul.")
 
     # Calcul du seuil de rentabilité (BEP)
-    bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
-    afficher_resultat_cadre(
-        "Seuil de rentabilité (BEP) =",
-        f"{bep:.2f} boîtes",
-        "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
-    )
+    if prix_ht_par_boite != cout_production_par_boite:
+        bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
+        afficher_resultat_cadre(
+            "Seuil de rentabilité (BEP) =",
+            f"{bep:.2f} boîtes",
+            "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
+        )
+    else:
+        st.warning("Impossible de calculer le seuil de rentabilité car le prix hors taxe par boîte est égal au coût de production par boîte.")
 
     # Calcul de la période exacte qui coïncide avec le BEP
     ventes_cumulees = 0
@@ -125,7 +134,7 @@ def main():
             "Le seuil de rentabilité est atteint quand les ventes cumulées couvrent le coût de l'investissement"
         )
     else:
-        st.error("Le seuil de rentabilité n'est pas atteint dans la période donnée.")
+        st.warning("Le seuil de rentabilité n'est pas atteint dans la période donnée.")
 
 if __name__ == "__main__":
     main()
