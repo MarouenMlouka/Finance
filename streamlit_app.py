@@ -2,14 +2,14 @@ import streamlit as st
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
     user_input = st.text_input(message, default_value)
-    if user_input.strip():  # Vérifie si l'entrée utilisateur n'est pas vide
+    if user_input and user_input.strip():  # Vérifie si l'entrée utilisateur n'est pas vide
         try:
             return type_conversion(user_input)
         except ValueError:
             st.error(f"Erreur : Veuillez entrer une valeur numérique valide pour {message}")
             return None  # Retourner None en cas d'erreur de conversion
     else:
-        return None  # Retourner None si l'entrée est vide
+        return None  # Retourner None si l'entrée est vide ou None
 
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
