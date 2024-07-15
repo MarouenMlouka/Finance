@@ -1,7 +1,4 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LinearRegression
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
     if default_value is not None:
@@ -21,7 +18,7 @@ def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
     st.write(resultat)
-    st.text_area("Explication", explication, height=100)
+    st.text(explication)
 
 def main():
     # URL du logo Servier
@@ -144,25 +141,23 @@ def main():
                         f"{bep:.2f} boîtes",
                         "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
                     )
-
-                    # Calcul de la période exacte qui coïncide avec le BEP
+ # Calcul de la période exacte qui coïncide avec le BEP
                     periode_bep = bep / (sum(ventes_mensuelles) - ventes_initiales_par_mois)
                     afficher_resultat_cadre(
                         "Période exacte pour atteindre le seuil de rentabilité (BEP) =",
                         f"{periode_bep:.2f} mois",
-                        "Période exacte pour atteindre le seuil de rentabilité (BEP) = BEP / (Ventes totales après investissement - Ventes totales avant investissement)"
+                        "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
                     )
+                else:
+                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) car le dénominateur est nul (Prix hors taxe par boîte - Coût de production par boîte = 0).")
 
-                    # Prédiction des ventes pour les mois suivants
-                    mois_suivants = obtenir_entree_utilisateur("Entrez le nombre de mois pour prédire les ventes futures : ", int, default_value=3)
-                    if mois_suivants is not None:
-                        X_pred = np.array([periode_mesure + i + 1 for i in range(mois_suivants)]).reshape(-1, 1)
-                        model = LinearRegression()
-                        model.fit(np.array(range(1, periode_mesure + 1)).reshape(-1, 1), np.array(ventes_mensuelles))
-                        Y_pred = model.predict(X_pred)
-                        st.subheader("Prédictions des ventes futures :")
-                        for i in range(len(Y_pred)):
-                            st.write(f"Mois {periode_mesure + i + 1} : {Y_pred[i]:.2f} boîtes")
+            else:
+                st.warning("Veuillez saisir le coût de l'investissement pour continuer.")
 
+        else:
+            st.warning("Veuillez saisir toutes les valeurs requises pour le calcul du coût des marchandises vendues (COGS).")
+
+    else:
+        st.warning("Veuillez saisir toutes les valeurs requises pour le calcul des boîtes supplémentaires vendues.")
 if __name__ == "__main__":
     main()
