@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
@@ -146,35 +145,32 @@ def main():
                     )
 
                     # Calcul de la période exacte qui coïncide avec le BEP
-                    periode_bep = bep / (sum(ventes_mensuelles) - ventes_initiales_par_mois)
+                    periode_bep = bep / (sum(ventes_mensuelles) - (ventes_initiales_par_mois * periode_mesure))
                     afficher_resultat_cadre(
-                        "Période exacte pour atteindre le seuil de rentabilité (BEP) =",
+                        "Période du BEP =",
                         f"{periode_bep:.2f} mois",
-                        "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
+                        "Période du BEP = BEP / (Somme des ventes mensuelles - (Ventes initiales par mois * Période de mesure))"
                     )
-
-                    # Entraînement du modèle de régression linéaire
-                    if len(ventes_mensuelles) > 1:  # Besoin d'au moins deux points de données pour la régression
-                        X = np.array(range(1, len(ventes_mensuelles) + 1)).reshape(-1, 1)
-                        y = np.array(ventes_mensuelles)
-                        modele = LinearRegression()
-                        modele.fit(X, y)
-
-                        # Prédiction des ventes pour les 6 prochains mois
-                        mois_futur = np.array(range(len(ventes_mensuelles) + 1, len(ventes_mensuelles) + 7)).reshape(-1, 1)
-                        predictions = modele.predict(mois_futur)
-
-                        st.subheader("Prédictions des ventes pour les 6 prochains mois")
-                        for mois, prediction in enumerate(predictions, start=1):
-                            st.write(f"Mois {len(ventes_mensuelles) + mois}: {prediction:.2f} ventes")
                 else:
-                    st.warning("Le calcul du seuil de rentabilité (BEP) ne peut pas être effectué car le prix hors taxe par boîte est égal au coût de production par boîte.")
-            else:
-                st.warning("Impossible de calculer les revenus totaux car certaines entrées nécessaires sont manquantes.")
-        else:
-            st.warning("Impossible de calculer le coût total car certaines entrées nécessaires sont manquantes.")
-    else:
-        st.warning("Impossible de calculer les boîtes supplémentaires vendues car certaines entrées nécessaires sont manquantes.")
+                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) : la différence entre le prix hors taxe et le coût de production est égale à zéro.")
+
+                # Prédiction des ventes pour les mois suivants
+                mois_suivants = st.number_input("Entrez le nombre de mois pour lesquels vous souhaitez prédire les ventes :", min_value=1, step=1, value=6)
+                if mois_suivants > 0:
+                    # Préparation des données pour la prédiction
+                    X_pred = np.array([periode_mesure + i + 1 for i in range(mois_suivants)]).reshape(-1, 1)
+
+                    # Modèle de régression linéaire
+                    model = LinearRegression()
+                    model.fit(np.array(list(range(1, periode_mesure + 1))).reshape(-1, 1), np.array(ventes_mensuelles))
+
+                    # Prédiction des ventes pour les mois suivants
+                    ventes_predites = model.predict(X_pred)
+
+                    # Affichage des prédictions
+                    st.subheader(f"Prédictions des ventes pour les {mois_suivants} prochains mois :")
+                    for i, vente_predite in enumerate(ventes_predites):
+                        st.write(f"Mois {periode_mesure + i + 1}: {vente_predite:.2f} boîtes")
 
 if __name__ == "__main__":
     main()
