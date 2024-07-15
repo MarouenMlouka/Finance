@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-from sklearn.linear_model import LinearRegression
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
     if default_value is not None:
@@ -21,27 +21,7 @@ def obtenir_entree_utilisateur(message, type_conversion, default_value=None):
 def afficher_resultat_cadre(titre, resultat, explication):
     st.subheader(titre)
     st.write(resultat)
-    st.markdown(f"<div style='overflow-x: auto;'><code>{explication}</code></div>", unsafe_allow_html=True)
-
-def obtenir_donnees_et_model():
-    # Données fictives pour l'exemple
-    data = {
-        "mois": np.arange(1, 13),  # Mois de 1 à 12
-        "ventes": np.array([100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650])  # Ventes mensuelles fictives
-    }
-    df = pd.DataFrame(data)
-    
-    # Entraîner un modèle de régression linéaire
-    X = df[["mois"]]
-    y = df["ventes"]
-    model = LinearRegression()
-    model.fit(X, y)
-    
-    return model, df
-
-def predire_ventes_futures(model, mois):
-    prediction = model.predict(np.array([[mois]]))
-    return prediction[0]
+    st.text_area("Explication", explication, height=100)
 
 def main():
     # URL du logo Servier
@@ -172,16 +152,23 @@ def main():
                         f"{periode_bep:.2f} mois",
                         "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
                     )
+                else:
+                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) car le dénominateur est zéro.")
+        
+        # Entraînement du modèle de régression linéaire
+        if len(ventes_mensuelles) > 1:  # Besoin d'au moins deux points de données pour la régression
+            X = np.array(range(1, len(ventes_mensuelles) + 1)).reshape(-1, 1)
+            y = np.array(ventes_mensuelles)
+            modele = LinearRegression()
+            modele.fit(X, y)
 
-    # Obtenir le modèle de régression linéaire
-    model, df = obtenir_donnees_et_model()
+            # Prédiction des ventes pour les 6 prochains mois
+            mois_futur = np.array(range(len(ventes_mensuelles) + 1, len(ventes_mensuelles) + 7)).reshape(-1, 1)
+            predictions = modele.predict(mois_futur)
 
-    st.subheader("Prédiction des Ventes Futures")
-    mois = st.number_input("Entrez le mois pour prédire les ventes (1-12) :", min_value=1, max_value=12, step=1)
-
-    if mois:
-        prediction = predire_ventes_futures(model, mois)
-        st.write(f"Prédiction des ventes pour le mois {mois} : {prediction:.2f} boîtes")
+            st.subheader("Prédictions des ventes pour les 6 prochains mois")
+            for mois, prediction in enumerate(predictions, start=1):
+                st.write(f"Mois {len(ventes_mensuelles) + mois}: {prediction:.2f} ventes")
 
 if __name__ == "__main__":
     main()
