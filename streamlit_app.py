@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
@@ -43,7 +42,7 @@ def main():
     choix_produit = st.selectbox("Choisissez un produit", list(produits.values()))
     nom_produit = [key for key, value in produits.items() if value == choix_produit][0]
 
-    # Saisie des ventes totales moyennes par mois avant l'implémentation (T0)
+    # Saisie des ventes totales par mois avant l'implémentation (T0)
     ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float, default_value=None)
     if ventes_initiales_par_mois is None:
         st.warning(f"Aucune valeur n'a été saisie pour les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0).")
@@ -128,27 +127,50 @@ def main():
                     "Coût total = (Ventes initiales par mois * Période de mesure * Coût de production par boîte) + Coût des marchandises vendues + Coût de l'investissement"
                 )
 
-                # Calcul du seuil de rentabilité (BEP)
-                seuil_rentabilite = cout_total / revenus_total
+                # Calcul du retour sur investissement (ROI)
+                roi_complet = ((revenus_total - cout_total) / cout_investissement) * 100
                 afficher_resultat_cadre(
-                    "Seuil de rentabilité (BEP) =",
-                    f"{seuil_rentabilite:.2%}",
-                    "Seuil de rentabilité (BEP) = Coût total / Revenus totaux"
+                    "Retour sur investissement (ROI) =",
+                    f"{roi_complet:.2f}%",
+                    "ROI = ((Revenus total - Coût total) / Coût de l'investissement) * 100"
                 )
 
-                # Calcul de la période exacte pour atteindre le seuil de rentabilité (BEP)
-                if marge_brute > 0:
-                    periode_bep_exacte = (cout_investissement / marge_brute) * 100
+                # Calcul du seuil de rentabilité (BEP)
+                if prix_ht_par_boite - cout_production_par_boite != 0:
+                    bep = cout_investissement / (prix_ht_par_boite - cout_production_par_boite)
                     afficher_resultat_cadre(
-                        "Période exacte pour atteindre le seuil de rentabilité (BEP) =",
-                        f"{periode_bep_exacte:.2f} mois",
-                        "Période exacte pour atteindre le seuil de rentabilité (BEP) = (Coût de l'investissement / Marge Brute) * 100"
+                        "Seuil de rentabilité (BEP) =",
+                        f"{bep:.2f} boîtes",
+                        "BEP = Coût de l'investissement / (Prix hors taxe par boîte - Coût de production par boîte)"
+                    )
+
+                    # Calcul de la période exacte qui coïncide avec le BEP
+                    periode_bep = bep / (sum(ventes_mensuelles) - (ventes_initiales_par_mois * periode_mesure))
+                    afficher_resultat_cadre(
+                        "Période du BEP =",
+                        f"{periode_bep:.2f} mois",
+                        "Période du BEP = BEP / (Somme des ventes mensuelles - (Ventes initiales par mois * Période de mesure))"
                     )
                 else:
-                    st.warning("La marge brute est inférieure ou égale à zéro, impossible de calculer la période exacte pour atteindre le seuil de rentabilité (BEP).")
+                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) : la différence entre le prix hors taxe et le coût de production est égale à zéro.")
 
-    st.markdown("---")
-    st.write("Merci d'utiliser notre calculateur d'analyse financière.")
-    
+                # Prédiction des ventes pour les mois suivants
+                mois_suivants = st.number_input("Entrez le nombre de mois pour lesquels vous souhaitez prédire les ventes :", min_value=1, step=1, value=6)
+                if mois_suivants > 0:
+                    # Préparation des données pour la prédiction
+                    X_pred = np.array([periode_mesure + i + 1 for i in range(mois_suivants)]).reshape(-1, 1)
+
+                    # Modèle de régression linéaire
+                    model = LinearRegression()
+                    model.fit(np.array(list(range(1, periode_mesure + 1))).reshape(-1, 1), np.array(ventes_mensuelles))
+
+                    # Prédiction des ventes pour les mois suivants
+                    ventes_predites = model.predict(X_pred)
+
+                    # Affichage des prédictions
+                    st.subheader(f"Prédictions des ventes pour les {mois_suivants} prochains mois :")
+                    for i, vente_predite in enumerate(ventes_predites):
+                        st.write(f"Mois {periode_mesure + i + 1}: {vente_predite:.2f} boîtes")
+
 if __name__ == "__main__":
     main()
