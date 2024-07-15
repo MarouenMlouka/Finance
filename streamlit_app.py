@@ -43,7 +43,7 @@ def main():
     nom_produit = [key for key, value in produits.items() if value == choix_produit][0]
 
     # Saisie des ventes totales par mois avant l'implémentation (T0)
-    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0) :", float, default_value=None)
+    ventes_initiales_par_mois = obtenir_entree_utilisateur(f"Entrez les ventes totales moyennes par mois de {nom_produit} avant l'implémentation du projet (T0) :", float, default_value=None)
     if ventes_initiales_par_mois is None:
         st.warning(f"Aucune valeur n'a été saisie pour les ventes totales par mois de {nom_produit} avant l'implémentation du projet (T0).")
 
