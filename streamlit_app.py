@@ -152,23 +152,29 @@ def main():
                         f"{periode_bep:.2f} mois",
                         "Période exacte pour atteindre le BEP = BEP / (Total des ventes après investissement - Ventes initiales par mois)"
                     )
+
+                    # Entraînement du modèle de régression linéaire
+                    if len(ventes_mensuelles) > 1:  # Besoin d'au moins deux points de données pour la régression
+                        X = np.array(range(1, len(ventes_mensuelles) + 1)).reshape(-1, 1)
+                        y = np.array(ventes_mensuelles)
+                        modele = LinearRegression()
+                        modele.fit(X, y)
+
+                        # Prédiction des ventes pour les 6 prochains mois
+                        mois_futur = np.array(range(len(ventes_mensuelles) + 1, len(ventes_mensuelles) + 7)).reshape(-1, 1)
+                        predictions = modele.predict(mois_futur)
+
+                        st.subheader("Prédictions des ventes pour les 6 prochains mois")
+                        for mois, prediction in enumerate(predictions, start=1):
+                            st.write(f"Mois {len(ventes_mensuelles) + mois}: {prediction:.2f} ventes")
                 else:
-                    st.warning("Impossible de calculer le seuil de rentabilité (BEP) car le dénominateur est zéro.")
-        
-        # Entraînement du modèle de régression linéaire
-        if len(ventes_mensuelles) > 1:  # Besoin d'au moins deux points de données pour la régression
-            X = np.array(range(1, len(ventes_mensuelles) + 1)).reshape(-1, 1)
-            y = np.array(ventes_mensuelles)
-            modele = LinearRegression()
-            modele.fit(X, y)
-
-            # Prédiction des ventes pour les 6 prochains mois
-            mois_futur = np.array(range(len(ventes_mensuelles) + 1, len(ventes_mensuelles) + 7)).reshape(-1, 1)
-            predictions = modele.predict(mois_futur)
-
-            st.subheader("Prédictions des ventes pour les 6 prochains mois")
-            for mois, prediction in enumerate(predictions, start=1):
-                st.write(f"Mois {len(ventes_mensuelles) + mois}: {prediction:.2f} ventes")
+                    st.warning("Le calcul du seuil de rentabilité (BEP) ne peut pas être effectué car le prix hors taxe par boîte est égal au coût de production par boîte.")
+            else:
+                st.warning("Impossible de calculer les revenus totaux car certaines entrées nécessaires sont manquantes.")
+        else:
+            st.warning("Impossible de calculer le coût total car certaines entrées nécessaires sont manquantes.")
+    else:
+        st.warning("Impossible de calculer les boîtes supplémentaires vendues car certaines entrées nécessaires sont manquantes.")
 
 if __name__ == "__main__":
     main()
